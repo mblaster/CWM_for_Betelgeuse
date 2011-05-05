@@ -44,6 +44,7 @@ int script_assert_enabled = 1;
 static const char *SDCARD_UPDATE_FILE = "/sdcard/update.zip";
 
 char *BACKUP_DIR = "/sdcard";
+char *INSTALL_DIR = "/sdcard";
 
 void
 toggle_signature_check()
@@ -77,14 +78,16 @@ int install_zip(const char* packagefilepath)
 }
 
 char* INSTALL_MENU_ITEMS[] = {  "apply /sdcard/update.zip",
-                                "choose zip from sdcard",
+                                "choose zip from source",
                                 "toggle signature verification",
                                 "toggle script asserts",
+                                "select source (internal / sdcard)",
                                 NULL };
 #define ITEM_APPLY_SDCARD     0
 #define ITEM_CHOOSE_ZIP       1
 #define ITEM_SIG_CHECK        2
 #define ITEM_ASSERTS          3
+#define ITEM_SELECTDIR        4
 
 void show_install_update_menu()
 {
@@ -112,10 +115,45 @@ void show_install_update_menu()
             case ITEM_CHOOSE_ZIP:
                 show_choose_zip_menu();
                 break;
+            case ITEM_SELECTDIR:
+                show_update_directory_choices();
+                break;
             default:
                 return;
         }
 
+    }
+}
+
+void show_update_directory_choices()
+{
+    static char* headers[] = {  "Select source directory",
+                                "",
+                                NULL
+    };
+
+    static char* list[] = { "Internal SD-Card",
+                            "External SD-Card",
+                            NULL
+    };
+
+    int chosen_item = get_menu_selection(headers, list, 0, 0);
+    switch (chosen_item)
+    {
+        case 0:
+            {
+                LOGE ("Using /sdcard as source directory\n");
+                INSTALL_DIR = "/sdcard";
+                show_install_update_menu();
+            }
+            break;
+        case 1:
+            {
+                LOGE ("Using /external-sdcard as source directory\n");
+                INSTALL_DIR = "/external-sdcard";
+                show_install_update_menu();
+            }
+            break;
     }
 }
 
@@ -302,8 +340,8 @@ char* choose_file_menu(const char* directory, const char* fileExtensionOrDirecto
 
 void show_choose_zip_menu()
 {
-    if (ensure_path_mounted("/sdcard") != 0) {
-        LOGE ("Can't mount /sdcard\n");
+    if (ensure_path_mounted(INSTALL_DIR) != 0) {
+        LOGE ("Can't mount source directory\n");
         return;
     }
 
@@ -312,7 +350,11 @@ void show_choose_zip_menu()
                                 NULL
     };
 
-    char* file = choose_file_menu("/sdcard/", ".zip", headers);
+    char temppath[128];
+    strcpy(temppath, INSTALL_DIR);
+    strcat(temppath, "/");
+
+    char* file = choose_file_menu(temppath, ".zip", headers);
     if (file == NULL)
         return;
     static char* confirm_install  = "Confirm install?";
@@ -832,7 +874,6 @@ void show_backup_directory_choices()
             }
             break;
     }
-
 }
 
 void show_nandroid_menu()
