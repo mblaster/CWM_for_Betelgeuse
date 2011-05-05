@@ -125,17 +125,17 @@ int nandroid_backup_partition(const char* backup_path, const char* root) {
     return nandroid_backup_partition_extended(backup_path, root, 1);
 }
 
-int nandroid_backup(const char* backup_path)
+int nandroid_backup(const char* backup_path, const char* BACKUP_DIR)
 {
     ui_set_background(BACKGROUND_ICON_INSTALLING);
     
-    if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Can't mount /sdcard\n");
+    if (ensure_path_mounted(BACKUP_DIR) != 0)
+        return print_and_error("Can't mount backup directory\n");
     
     int ret;
     struct statfs s;
-    if (0 != (ret = statfs("/sdcard", &s)))
-        return print_and_error("Unable to stat /sdcard\n");
+    if (0 != (ret = statfs(BACKUP_DIR, &s)))
+        return print_and_error("Unable to stat backup directory\n");
     uint64_t bavail = s.f_bavail;
     uint64_t bsize = s.f_bsize;
     uint64_t sdcard_free = bavail * bsize;
@@ -303,14 +303,14 @@ int nandroid_restore_partition(const char* backup_path, const char* root) {
     return nandroid_restore_partition_extended(backup_path, root, 1);
 }
 
-int nandroid_restore(const char* backup_path, int restore_boot, int restore_system, int restore_data, int restore_cache, int restore_sdext, int restore_wimax)
+int nandroid_restore(const char* backup_path, const char* BACKUP_DIR, int restore_boot, int restore_system, int restore_data, int restore_cache, int restore_sdext, int restore_wimax)
 {
     ui_set_background(BACKGROUND_ICON_INSTALLING);
     ui_show_indeterminate_progress();
     yaffs_files_total = 0;
 
-    if (ensure_path_mounted("/sdcard") != 0)
-        return print_and_error("Can't mount /sdcard\n");
+    if (ensure_path_mounted(BACKUP_DIR) != 0)
+        return print_and_error("Can't mount backup directory\n");
     
     char tmp[PATH_MAX];
 
@@ -415,14 +415,14 @@ int nandroid_main(int argc, char** argv)
         
         char backup_path[PATH_MAX];
         nandroid_generate_timestamp_path(backup_path);
-        return nandroid_backup(backup_path);
+        return nandroid_backup(backup_path, "/sdcard");
     }
 
     if (strcmp("restore", argv[1]) == 0)
     {
         if (argc != 3)
             return nandroid_usage();
-        return nandroid_restore(argv[2], 1, 1, 1, 1, 1, 0);
+        return nandroid_restore(argv[2], "/sdcard", 1, 1, 1, 1, 1, 0);
     }
     
     return nandroid_usage();

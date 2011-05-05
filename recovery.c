@@ -427,7 +427,7 @@ copy_sideloaded_package(const char* original_path) {
 
 static char**
 prepend_title(char** headers) {
-    char* title[] = { EXPAND(RECOVERY_VERSION),
+    char* title[] = { EXPAND(RECOVERY_KANG_VERSION),
                       "",
                       NULL };
 
@@ -805,6 +805,8 @@ main(int argc, char **argv) {
     printf("Starting recovery on %s", ctime(&start));
 
     ui_init();
+    ui_print(EXPAND(RECOVERY_KANG_VERSION)"\n");
+    ui_print("   based on\n");
     ui_print(EXPAND(RECOVERY_VERSION)"\n");
     load_volume_table();
     process_volumes();
