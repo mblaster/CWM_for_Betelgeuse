@@ -134,6 +134,7 @@ void show_update_directory_choices()
 
     static char* list[] = { "Internal SD-Card",
                             "External SD-Card",
+                            "USB Drive",
                             NULL
     };
 
@@ -151,6 +152,13 @@ void show_update_directory_choices()
             {
                 LOGE ("Using /external-sdcard as source directory\n");
                 INSTALL_DIR = "/external-sdcard";
+                show_install_update_menu();
+            }
+            break;
+        case 2:
+            {
+                LOGE ("Using USB Drive as source directory\n");
+                INSTALL_DIR = "/usb";
                 show_install_update_menu();
             }
             break;
@@ -853,6 +861,7 @@ void show_backup_directory_choices()
 
     static char* list[] = { "Internal SD-Card",
                             "External SD-Card",
+                            "USB Drive",
                             NULL
     };
 
@@ -870,6 +879,13 @@ void show_backup_directory_choices()
             {
                 LOGE ("Using /external-sdcard for Backup/Restore\n");
                 BACKUP_DIR = "/external-sdcard";
+                show_nandroid_menu();
+            }
+            break;
+        case 2:
+            {
+                LOGE ("Using USB Drive for Backup/Restore\n");
+                BACKUP_DIR = "/usb";
                 show_nandroid_menu();
             }
             break;
